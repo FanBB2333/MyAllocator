@@ -1,0 +1,10 @@
+#ifndef MYALLOCATOR_ALLOMEMPOOL_H
+#define MYALLOCATOR_ALLOMEMPOOL_H
+
+
+class AlloMemPool {
+
+};
+
+
+#endif //MYALLOCATOR_ALLOMEMPOOL_H

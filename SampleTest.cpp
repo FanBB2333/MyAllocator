@@ -7,8 +7,10 @@ template<class T>
 using MyAllocator = std::allocator<T>; // replace the std::allocator with your allocator
 using Point2D = std::pair<int, int>;
 
-const int TestSize = 10000;
-const int PickSize = 1000;
+//const int TestSize = 10000;
+//const int PickSize = 1000;
+const int TestSize = 1;
+const int PickSize = 1;
 
 int main()
 {
