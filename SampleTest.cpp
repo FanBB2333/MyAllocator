@@ -25,9 +25,10 @@ int main()
     }
     std::cout << abc.at(0) << std::endl;
 //    abc.pop_back();
-    return 0;
-    std::vector<int, MyAllocator<int>> cbd;
+//    return 0;
+    std::vector<int, MyAllocator<int>> cbd(1);
     std::vector<IntVec, MyAllocator<IntVec>> vecints(TestSize);
+    return 0;
     for (int i = 0; i < TestSize; i++){
         vecints[i].resize(dis(gen));
     }

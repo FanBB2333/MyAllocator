@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstddef>
 namespace MemMgr{
+    const uint32_t page_size = 4096;
     template <class T>
     class allocator{
     public:
@@ -16,11 +17,14 @@ namespace MemMgr{
         typedef size_t size_type;
         typedef ptrdiff_t difference_type;
 
-        allocator() {};// default ctor
-        allocator(const allocator& t); // copy ctor
-        ~allocator() {}; // dtor
+        allocator() {}// default ctor
+        allocator(const allocator& t){} // copy ctor
+        ~allocator() {} // dtor
 
-        pointer address(reference _Val) const;
+        pointer address(reference _Val) const {
+            return &_Val;
+        }
+
         const_pointer address( const_reference x ) const;
         void deallocate(pointer p, size_type n)
         {
@@ -30,7 +34,7 @@ namespace MemMgr{
 //        void deallocate( T* p, std::size_t n );
 //        T* allocate( std::size_t n, const void * hint = 0);
 
-        T* allocate( std::size_t n )
+        T* allocate( std::size_t n, const void * hint = 0 )
         {
             T* _ret = static_cast<T*>(::operator new(n * sizeof(T)));
             if(!_ret){
@@ -57,10 +61,25 @@ namespace MemMgr{
 
     private:
         pointer free_head;
+        pointer free_end;
+        uint32_t free_block;
+        uint32_t total_block;
 
-        void allocate_mem()
+        struct mem_block{
+            value_type pData;
+            pointer next;
+        };
+        pointer allocate_mem(size_t n = page_size)
         {
-            
+            pointer _ptr = static_cast<T*>(::operator new(n));
+            if(!_ptr){
+                std::cerr << "Out of Memory!" << std::endl;
+            }
+            pointer tmp_tail = free_head;
+            free_head = _ptr;
+
+            std::cout << "allocator::allocate_mem( size_t n )  " << n << std::endl;
+            return _ptr;
         }
 
     };
