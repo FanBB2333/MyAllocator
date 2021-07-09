@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <ctime>
 #include "./src/AlloMemPool.h"
 // include header of your allocator here
 template<class T>
@@ -18,17 +19,52 @@ int main()
     std::uniform_int_distribution<> dis(1, TestSize);
     // vector creation
     using IntVec = std::vector<int, MyAllocator<int>>;
+
+    clock_t start;
+    start = clock();
+    std::vector<int, std::allocator<int> > ori;
+    ori.push_back(1);
+    for(int i = 0; i < 100; i++){
+        ori.push_back(i);
+//        std::cout << "Push : " << i << std::endl;
+    }
+    std::cout << ori.at(0) << std::endl;
+    ori.pop_back();
+    std::cout << "Default Allocator Time: ";
+    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
+
+    start = clock();
     IntVec abc;
-    for(int i = 0; i < 10; i++){
+
+//    abc.push_back(1);
+//    abc.push_back(2);
+//    abc.push_back(3);
+//    abc.push_back(4);
+//    abc.push_back(5);
+//    abc.push_back(6);
+//    abc.push_back(7);
+//    abc.push_back(8);
+//    abc.push_back(9);
+
+    for(int i = 0; i < 5; i++){
         abc.push_back(i);
         std::cout << "Push : " << i << std::endl;
     }
-    std::cout << abc.at(0) << std::endl;
-//    abc.pop_back();
-//    return 0;
+    for(int i = 0; i < abc.size(); i++){
+        printf("%d:%d\n", i, abc.at(i));
+    }
+    return 0;
+    for(int i = 0; i < 5; i++){
+        abc.push_back(i);
+        std::cout << "Push : " << i << std::endl;
+    }
+
+    abc.pop_back();
+    std::cout << "My Allocator Time: ";
+    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
+    return 0;
     std::vector<int, MyAllocator<int>> cbd(1);
     std::vector<IntVec, MyAllocator<IntVec>> vecints(TestSize);
-    return 0;
     for (int i = 0; i < TestSize; i++){
         vecints[i].resize(dis(gen));
     }
