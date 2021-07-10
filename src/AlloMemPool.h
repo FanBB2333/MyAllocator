@@ -50,6 +50,11 @@ namespace MemMgr{
         const_pointer address( const_reference x ) const;
         void deallocate(pointer p, size_type n)
         {
+            if(n >= block_size){
+                ::operator delete(p);
+                return;
+            }
+            // Find the block with the specific id and push back to free_list
             if (p != nullptr) {
                 for(auto &iter : all_block){
                     if(iter.pData == reinterpret_cast<void*>(p)){
@@ -82,7 +87,7 @@ namespace MemMgr{
             // Assign a block of memory from the memory pool
             mem_ptr out = valid_block.front();
             valid_block.pop_front();
-            std::cout << valid_block.size() << " block left!" <<std::endl;
+//            std::cout << valid_block.size() << " block left!" <<std::endl;
             return reinterpret_cast<T*>(out.pData);
 
         }
@@ -127,10 +132,12 @@ namespace MemMgr{
             void* _new_mem = static_cast<void*>(::operator new(n));
             void* cyc = _new_mem;
             for(auto i = 0; i < block_in_pool; i++){
+                // push the assigned valid block of memory back to list
                 valid_block.template emplace_back(cyc, max_id);
                 all_block.template emplace_back(cyc, max_id);
                 max_id++;
 //                std::cout << max_id << " : " << cyc << std::endl;
+                // note that we need to divide the memory block into smaller pieces.
                 cyc = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(cyc) + block_size);
             }
 
@@ -140,8 +147,113 @@ namespace MemMgr{
 
     };
 
+    template<class T>
+    class allocator_heap{
+    public:
+        typedef void _Not_user_specialized;
+        typedef T value_type;
+        typedef value_type *pointer;
+        typedef const value_type *const_pointer;
+        typedef value_type& reference;
+        typedef const value_type& const_reference;
+        typedef size_t size_type;
+        typedef ptrdiff_t difference_type;
 
 
+        class mem_ptr{
+        public:
+            void* pData = nullptr;
+            size_t id;
+            mem_ptr() = default;
+            mem_ptr(void* p, int i):pData(p), id(i){}
+            ~mem_ptr()= default;
+            bool operator<(const mem_ptr& that) const{
+                return id > that.id; //min-heap
+            }
+        };
+        typedef mem_ptr *block_ptr;
+        allocator_heap(): max_id(0)
+        {}// default ctor
+        allocator_heap(const allocator_heap& t)
+        {} // copy ctor
+        ~allocator_heap() {} // dtor
+
+        pointer address(reference _Val) const {
+            return &_Val;
+        }
+
+        const_pointer address( const_reference x ) const;
+        void deallocate(pointer p, size_type n)
+        {
+            if(n >= block_size){
+                ::operator delete(p);
+                return;
+            }
+            // Find the block with the specific id and push back to free_list
+            if (p != nullptr) {
+                valid_block.template emplace(p, max_id++);
+            }
+            else{
+                std::cout << "NULLPTR----allocator_heap::deallocate(pointer p, size_type n)  "<< std::endl;
+
+            }
+        }
+
+
+        T* allocate( std::size_t n, const void * hint = 0 )
+        {
+            if(n * sizeof(T) > block_size){
+                std::cout << "Allocate from operator new!!" <<std::endl;
+                return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
+            }
+            if(valid_block.empty()){
+                allocate_mem();
+            }
+
+            // Assign a block of memory from the memory pool
+            mem_ptr out = valid_block.top();
+            valid_block.pop();
+            return reinterpret_cast<T*>(out.pData);
+
+        }
+
+        template< class U >
+        void destroy( U* p )
+        {
+            p->~U();
+        }
+        template< class U , class... Args >
+        void construct( U* p, Args&&... args )
+        {
+            ::new((void *)p) U(std::forward<Args>(args)...);
+        }
+
+
+
+    private:
+        std::priority_queue<mem_ptr> valid_block;
+        std::priority_queue<mem_ptr> all_block;
+
+        uint32_t max_id;
+
+        void* allocate_mem(size_t n = block_size * block_in_pool)
+        {
+            void* _new_mem = static_cast<void*>(::operator new(n));
+            void* cyc = _new_mem;
+            for(auto i = 0; i < block_in_pool; i++){
+                // push the assigned valid block of memory back to heap
+                valid_block.template emplace(cyc, max_id);
+                all_block.template emplace(cyc, max_id);
+                max_id++;
+                // note that we need to divide the memory block into smaller pieces.
+                cyc = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(cyc) + block_size);
+            }
+
+            return nullptr;
+
+        }
+
+    };
 
 }
 

@@ -6,14 +6,20 @@
 
 //#define DEBUG
 // include header of your allocator_list here
-template<class T>
 //using MyAllocator = std::allocator_list<T>; // replace the std::allocator_list with your allocator_list
+template<class T>
 using MyAllocator = MemMgr::allocator_list<T>;
+template<class T>
+using ListAllocator = MemMgr::allocator_list<T>;
+template<class T>
+using HeapAllocator = MemMgr::allocator_heap<T>;
+
 using Point2D = std::pair<int, int>;
 
-const int TestSize = 10;
-const int PickSize = 1000;
 
+const int TestSize = 10000;
+const int PickSize = 1000;
+const int cycle = 800;
 int main()
 {
     std::random_device rd;
@@ -72,6 +78,7 @@ int main()
     std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
     return 0;
 #endif
+    std::cout << "------------Start of original Testcase!------------" << std::endl;
     std::vector<IntVec, MyAllocator<IntVec>> vecints(TestSize);
 
     for (int i = 0; i < TestSize; i++){
@@ -114,6 +121,47 @@ int main()
             std::cout << "incorrect assignment in vecpts: " << idx1 << std::endl;
     }
 
+    std::cout << "------------End of original Testcase!------------\n\n" << std::endl;
+
+
+    std::cout << "------------Start of time Test!------------\n" << std::endl;
+    clock_t start;
+    std::cout << "------------Using Default Allocator!------------" << std::endl;
+    start = clock();
+    for(auto i = 0; i < cycle; i++){
+        std::vector<int, std::allocator<int> > tmp;
+
+        // Push 4 elements to test twice memory expand and copy of vector
+        for(auto j = 0; j < 4; j++){
+            tmp.push_back(j);
+        }
+    }
+    std::cout << "Default Allocator Time: ";
+    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
+
+    std::cout << "------------Using Linked List Allocator!------------\n" << std::endl;
+    for(auto i = 0; i < cycle; i++){
+        std::vector<int, ListAllocator<int> > tmp;
+
+        // Push 4 elements to test twice memory expand and copy of vector
+        for(auto j = 0; j < 4; j++){
+            tmp.push_back(j);
+        }
+    }
+    std::cout << "Linked List Allocator Time: ";
+    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
+    std::cout << "------------Using Heap Allocator!------------" << std::endl;
+
+    for(auto i = 0; i < cycle; i++){
+        std::vector<int, HeapAllocator<int> > tmp;
+
+        // Push 4 elements to test twice memory expand and copy of vector
+        for(auto j = 0; j < 4; j++){
+            tmp.push_back(j);
+        }
+    }
+    std::cout << "Heap Allocator Time: ";
+    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
     return 0;
 }
 
