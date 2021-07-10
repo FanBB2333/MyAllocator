@@ -5,10 +5,10 @@
 #include "./src/AlloMemPool.h"
 
 //#define DEBUG
-// include header of your allocator here
+// include header of your allocator_list here
 template<class T>
-//using MyAllocator = std::allocator<T>; // replace the std::allocator with your allocator
-using MyAllocator = MemMgr::allocator<T>;
+//using MyAllocator = std::allocator_list<T>; // replace the std::allocator_list with your allocator_list
+using MyAllocator = MemMgr::allocator_list<T>;
 using Point2D = std::pair<int, int>;
 
 const int TestSize = 10;
@@ -24,7 +24,7 @@ int main()
 #ifdef DEBUG
     clock_t start;
 //    start = clock();
-//    std::vector<int, std::allocator<int> > ori;
+//    std::vector<int, std::allocator_list<int> > ori;
 //    ori.push_back(1);
 //    for(int i = 0; i < 100; i++){
 //        ori.push_back(i);

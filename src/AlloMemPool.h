@@ -4,12 +4,13 @@
 #include <cstdio>
 #include <cstddef>
 #include <list>
+#include <queue>
 
 namespace MemMgr{
-    const uint32_t block_size = 4096;
-    const uint32_t block_in_pool = 1024;
+    const uint32_t block_size = 8192;
+    const uint32_t block_in_pool = 128;
     template <class T>
-    class allocator{
+    class allocator_list{
     public:
         typedef void _Not_user_specialized;
         typedef T value_type;
@@ -30,17 +31,17 @@ namespace MemMgr{
             ~mem_ptr()= default;
         };
         typedef mem_ptr *block_ptr;
-        allocator():free_block(0), total_block(0), max_id(0)
+        allocator_list(): free_block(0), total_block(0), max_id(0)
         {
             free_head = nullptr;
             free_tail = nullptr;
         }// default ctor
-        allocator(const allocator& t)
+        allocator_list(const allocator_list& t)
         {
             free_head = nullptr;
             free_tail = nullptr;
         } // copy ctor
-        ~allocator() {} // dtor
+        ~allocator_list() {} // dtor
 
         pointer address(reference _Val) const {
             return &_Val;
@@ -52,16 +53,15 @@ namespace MemMgr{
             if (p != nullptr) {
                 for(auto &iter : all_block){
                     if(iter.pData == reinterpret_cast<void*>(p)){
-                        std::cout << "###########################################" << iter.id <<std::endl;
-                        valid_block.template emplace_front(p, iter.id);
+                        valid_block.template emplace_back(p, iter.id);
                     }
                 }
             }
             else{
-                std::cout << "NULLPTR----allocator::deallocate(pointer p, size_type n)  "<< std::endl;
+                std::cout << "NULLPTR----allocator_list::deallocate(pointer p, size_type n)  "<< std::endl;
 
             }
-            std::cout << "allocator::deallocate(pointer p, size_type n)  " << n << std::endl;
+//            std::cout << "allocator_list::deallocate(pointer p, size_type n)  " << n << std::endl;
         }
 //        void deallocate( T* p, std::size_t n );
 //        T* allocate( std::size_t n, const void * hint = 0);
@@ -69,10 +69,10 @@ namespace MemMgr{
         T* allocate( std::size_t n, const void * hint = 0 )
         {
 //            T* _ret = static_cast<T*>(::operator new(n * sizeof(T)));
-            T* _ret = (T*)free_head;
+//            return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
 
             if(n * sizeof(T) > block_size){
-                std::cout << "Allocate from operator new!!" << static_cast<void*>(_ret)<<std::endl;
+                std::cout << "Allocate from operator new!!" <<std::endl;
                 return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
             }
             if(valid_block.empty()){
@@ -90,17 +90,17 @@ namespace MemMgr{
         template< class U >
         void destroy( U* p )
         {
-//            p->~U();
-            std::cout << "allocator::destroy( U* p )  " << std::endl;
+            p->~U();
+//            std::cout << "allocator_list::destroy( U* p )  " << std::endl;
 
         }
         template< class U , class... Args >
         void construct( U* p, Args&&... args )
         {
             ::new((void *)p) U(std::forward<Args>(args)...);
-            std::cout << "construct at:  " << static_cast<void*>(p) << std::endl;
-
-            std::cout << "allocator::construct( U* p, Args&&... args )  " << std::endl;
+//            std::cout << "construct at:  " << static_cast<void*>(p) << std::endl;
+//
+//            std::cout << "allocator_list::construct( U* p, Args&&... args )  " << std::endl;
 
         }
 
