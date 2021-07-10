@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cstddef>
 namespace MemMgr{
-    const uint32_t page_size = 4096;
+    const uint32_t page_size = 4;
     template <class T>
     class allocator{
     public:
@@ -68,13 +68,18 @@ namespace MemMgr{
 //                return reinterpret_cast<pointer>(free_head++);
 //            }
 
-            if(!_ret){
-                 _ret = (T*)(allocate_mem());
+            if(!free_head){
+                  _ret = (T*)allocate_mem();
+                    std::cout << (void*)free_head << std::endl;
 //                 free_head = reinterpret_cast<mem_block*>(_ret);
 //                 free_head = free_head->next;
                  std::cout << "Reallocate a block!!" << static_cast<void*>(_ret)<<std::endl;
+//                 return reinterpret_cast<T*>(free_head++);
             }
             else{
+                if(free_head->next == nullptr){
+                    free_head = allocate_mem();
+                }
                 _ret = reinterpret_cast<T*>(free_head);
                 for(size_t i = 0; i < n; i++){
                     free_head = free_head->next;
@@ -91,7 +96,7 @@ namespace MemMgr{
         template< class U >
         void destroy( U* p )
         {
-            p->~U();
+//            p->~U();
             std::cout << "allocator::destroy( U* p )  " << std::endl;
 
         }
@@ -126,8 +131,6 @@ namespace MemMgr{
             if(!_ptr){
                 std::cerr << "Out of Memory!" << std::endl;
             }
-            mem_block* tmp_tail = free_head;
-            free_head = _ptr;
             mem_block* p = _ptr;
             for(int i = 0; i < n - 1; i++){
                 p->next = p + 1;
@@ -137,6 +140,8 @@ namespace MemMgr{
 
             }
             free_tail = p;
+            free_tail->next = free_head;
+            free_head = _ptr;
             std::cout << "allocator::allocate_mem( size_t n )  " << n << std::endl;
             return _ptr;
         }

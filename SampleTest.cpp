@@ -11,7 +11,7 @@ template<class T>
 using MyAllocator = MemMgr::allocator<T>;
 using Point2D = std::pair<int, int>;
 
-const int TestSize = 10000;
+const int TestSize = 10;
 const int PickSize = 1000;
 
 int main()
@@ -79,9 +79,7 @@ int main()
     std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
     return 0;
 #endif
-    std::vector<IntVec, MyAllocator<IntVec>> vecints(1);
-    std::cout << sizeof(std::vector<Point2D, MyAllocator<Point2D>>) << std::endl;
-    return 0;
+    std::vector<IntVec, MyAllocator<IntVec>> vecints(TestSize);
 
     for (int i = 0; i < TestSize; i++){
         vecints[i].resize(dis(gen));
