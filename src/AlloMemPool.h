@@ -3,8 +3,11 @@
 #include <iostream>
 #include <cstdio>
 #include <cstddef>
+#include <list>
+
 namespace MemMgr{
-    const uint32_t page_size = 4;
+    const uint32_t block_size = 4096;
+    const uint32_t block_in_pool = 1024;
     template <class T>
     class allocator{
     public:
@@ -17,7 +20,17 @@ namespace MemMgr{
         typedef size_t size_type;
         typedef ptrdiff_t difference_type;
 
-        allocator():free_block(0), total_block(0)
+
+        class mem_ptr{
+        public:
+            void* pData = nullptr;
+            size_t id;
+            mem_ptr() = default;
+            mem_ptr(void* p, int i):pData(p), id(i){}
+            ~mem_ptr()= default;
+        };
+        typedef mem_ptr *block_ptr;
+        allocator():free_block(0), total_block(0), max_id(0)
         {
             free_head = nullptr;
             free_tail = nullptr;
@@ -37,10 +50,12 @@ namespace MemMgr{
         void deallocate(pointer p, size_type n)
         {
             if (p != nullptr) {
-                std::cout << "p: " << static_cast<void*>(p) << "  Free head: " << static_cast<void*>(free_head) <<std::endl;
-
-                reinterpret_cast<mem_block*>(p)->next = free_head;
-                free_head = reinterpret_cast<mem_block*>(p);
+                for(auto &iter : all_block){
+                    if(iter.pData == reinterpret_cast<void*>(p)){
+                        std::cout << "###########################################" << iter.id <<std::endl;
+                        valid_block.template emplace_front(p, iter.id);
+                    }
+                }
             }
             else{
                 std::cout << "NULLPTR----allocator::deallocate(pointer p, size_type n)  "<< std::endl;
@@ -55,42 +70,21 @@ namespace MemMgr{
         {
 //            T* _ret = static_cast<T*>(::operator new(n * sizeof(T)));
             T* _ret = (T*)free_head;
-            // If free_head is nullptr
 
-//            if (free_head != nullptr) {
-//                pointer result = reinterpret_cast<pointer>(free_head);
-//                free_head = free_head->next;
-//                return result;
-//            }
-//            else {
-//                if (free_head == nullptr)
-//                    free_head = reinterpret_cast<mem_block*>(allocate_mem());
-//                return reinterpret_cast<pointer>(free_head++);
-//            }
-
-            if(!free_head){
-                  _ret = (T*)allocate_mem();
-                    std::cout << (void*)free_head << std::endl;
-//                 free_head = reinterpret_cast<mem_block*>(_ret);
-//                 free_head = free_head->next;
-                 std::cout << "Reallocate a block!!" << static_cast<void*>(_ret)<<std::endl;
-//                 return reinterpret_cast<T*>(free_head++);
+            if(n * sizeof(T) > block_size){
+                std::cout << "Allocate from operator new!!" << static_cast<void*>(_ret)<<std::endl;
+                return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
             }
-            else{
-                if(free_head->next == nullptr){
-                    free_head = allocate_mem();
-                }
-                _ret = reinterpret_cast<T*>(free_head);
-                for(size_t i = 0; i < n; i++){
-                    free_head = free_head->next;
-                }
+            if(valid_block.empty()){
+                allocate_mem();
             }
 
-            if(!_ret){
-                std::cerr << "Out of Memory!" << std::endl;
-            }
-            std::cout << "allocator::allocate( std::size_t n )  " << n << std::endl;
-            return _ret;
+            // Assign a block of memory from the memory pool
+            mem_ptr out = valid_block.front();
+            valid_block.pop_front();
+            std::cout << valid_block.size() << " block left!" <<std::endl;
+            return reinterpret_cast<T*>(out.pData);
+
         }
 
         template< class U >
@@ -117,33 +111,31 @@ namespace MemMgr{
             value_type pData;
             mem_block* next = nullptr;
         };
+
+        std::list<mem_ptr> valid_block;
+        std::list<mem_ptr> all_block;
+
         mem_block* total_head;
         mem_block* free_head;
         mem_block* free_tail;
         uint32_t free_block{};
         uint32_t total_block{};
+        uint32_t max_id;
 
-
-        mem_block* allocate_mem(size_t n = page_size)
+        void* allocate_mem(size_t n = block_size * block_in_pool)
         {
-//            mem_block* _ptr = static_cast<T*>(::operator new(n * sizeof(mem_block)));
-            mem_block* _ptr = static_cast<mem_block*>(::operator new(n * sizeof(mem_block)));
-            if(!_ptr){
-                std::cerr << "Out of Memory!" << std::endl;
+            void* _new_mem = static_cast<void*>(::operator new(n));
+            void* cyc = _new_mem;
+            for(auto i = 0; i < block_in_pool; i++){
+                valid_block.template emplace_back(cyc, max_id);
+                all_block.template emplace_back(cyc, max_id);
+                max_id++;
+//                std::cout << max_id << " : " << cyc << std::endl;
+                cyc = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(cyc) + block_size);
             }
-            mem_block* p = _ptr;
-            for(int i = 0; i < n - 1; i++){
-                p->next = p + 1;
-//                std::cout << static_cast<const void *>(p) << std::endl;
-//                printf("i:%d#pData:%d\n", i, p->pData);
-                p = p->next;
 
-            }
-            free_tail = p;
-            free_tail->next = free_head;
-            free_head = _ptr;
-            std::cout << "allocator::allocate_mem( size_t n )  " << n << std::endl;
-            return _ptr;
+            return nullptr;
+
         }
 
     };

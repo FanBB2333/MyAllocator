@@ -4,7 +4,7 @@
 #include <ctime>
 #include "./src/AlloMemPool.h"
 
-#define DEBUG
+//#define DEBUG
 // include header of your allocator here
 template<class T>
 //using MyAllocator = std::allocator<T>; // replace the std::allocator with your allocator
@@ -37,25 +37,18 @@ int main()
 
     start = clock();
     std::vector<int, MyAllocator<int>> abc;
-//    abc.push_back(0);
-//    printf("push 0\n");
-//    abc.push_back(1);
-//    printf("push 1\n");
 
-//    abc.push_back(2);
-//    abc.push_back(3);
-//    abc.push_back(4);
-//    abc.push_back(5);
+
     for(int i = 0; i < 65; i++){
         abc.push_back(i);
 //        std::cout << "Push : " << i << std::endl;
     }
     for(int i = 0; i < abc.size(); i++){
-        printf("%d:%d\n", i, abc.at(i));
+        printf("%d : %d\n", i, abc.at(i));
     }
+    return 0;
 
 //    std::cout << abc.at(0) << std::endl;
-    return 0;
 
 
 //    abc.push_back(6);
