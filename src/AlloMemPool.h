@@ -37,8 +37,14 @@ namespace MemMgr{
         void deallocate(pointer p, size_type n)
         {
             if (p != nullptr) {
+                std::cout << "p: " << static_cast<void*>(p) << "  Free head: " << static_cast<void*>(free_head) <<std::endl;
+
                 reinterpret_cast<mem_block*>(p)->next = free_head;
                 free_head = reinterpret_cast<mem_block*>(p);
+            }
+            else{
+                std::cout << "NULLPTR----allocator::deallocate(pointer p, size_type n)  "<< std::endl;
+
             }
             std::cout << "allocator::deallocate(pointer p, size_type n)  " << n << std::endl;
         }
@@ -50,13 +56,26 @@ namespace MemMgr{
 //            T* _ret = static_cast<T*>(::operator new(n * sizeof(T)));
             T* _ret = (T*)free_head;
             // If free_head is nullptr
+
+//            if (free_head != nullptr) {
+//                pointer result = reinterpret_cast<pointer>(free_head);
+//                free_head = free_head->next;
+//                return result;
+//            }
+//            else {
+//                if (free_head == nullptr)
+//                    free_head = reinterpret_cast<mem_block*>(allocate_mem());
+//                return reinterpret_cast<pointer>(free_head++);
+//            }
+
             if(!_ret){
                  _ret = (T*)(allocate_mem());
 //                 free_head = reinterpret_cast<mem_block*>(_ret);
 //                 free_head = free_head->next;
-                 std::cout << "Reallocate a block!!" << std::endl;
+                 std::cout << "Reallocate a block!!" << static_cast<void*>(_ret)<<std::endl;
             }
             else{
+                _ret = reinterpret_cast<T*>(free_head);
                 for(size_t i = 0; i < n; i++){
                     free_head = free_head->next;
                 }
@@ -76,13 +95,17 @@ namespace MemMgr{
             std::cout << "allocator::destroy( U* p )  " << std::endl;
 
         }
-        template< class U, class... Args >
+        template< class U , class... Args >
         void construct( U* p, Args&&... args )
         {
             ::new((void *)p) U(std::forward<Args>(args)...);
+            std::cout << "construct at:  " << static_cast<void*>(p) << std::endl;
+
             std::cout << "allocator::construct( U* p, Args&&... args )  " << std::endl;
 
         }
+
+
 
     private:
         struct mem_block{

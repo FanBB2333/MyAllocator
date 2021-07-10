@@ -3,6 +3,8 @@
 #include <vector>
 #include <ctime>
 #include "./src/AlloMemPool.h"
+
+#define DEBUG
 // include header of your allocator here
 template<class T>
 //using MyAllocator = std::allocator<T>; // replace the std::allocator with your allocator
@@ -19,40 +21,53 @@ int main()
     std::uniform_int_distribution<> dis(1, TestSize);
     // vector creation
     using IntVec = std::vector<int, MyAllocator<int>>;
-
+#ifdef DEBUG
     clock_t start;
-    start = clock();
-    std::vector<int, std::allocator<int> > ori;
-    ori.push_back(1);
-    for(int i = 0; i < 100; i++){
-        ori.push_back(i);
+//    start = clock();
+//    std::vector<int, std::allocator<int> > ori;
+//    ori.push_back(1);
+//    for(int i = 0; i < 100; i++){
+//        ori.push_back(i);
 //        std::cout << "Push : " << i << std::endl;
-    }
-    std::cout << ori.at(0) << std::endl;
-    ori.pop_back();
-    std::cout << "Default Allocator Time: ";
-    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
+//    }
+//    std::cout << ori.at(0) << std::endl;
+//    ori.pop_back();
+//    std::cout << "Default Allocator Time: ";
+//    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
 
     start = clock();
-    IntVec abc;
-
+    std::vector<int, MyAllocator<int>> abc;
+//    abc.push_back(0);
+//    printf("push 0\n");
 //    abc.push_back(1);
+//    printf("push 1\n");
+
 //    abc.push_back(2);
 //    abc.push_back(3);
 //    abc.push_back(4);
 //    abc.push_back(5);
+    for(int i = 0; i < 65; i++){
+        abc.push_back(i);
+//        std::cout << "Push : " << i << std::endl;
+    }
+    for(int i = 0; i < abc.size(); i++){
+        printf("%d:%d\n", i, abc.at(i));
+    }
+
+//    std::cout << abc.at(0) << std::endl;
+    return 0;
+
+
 //    abc.push_back(6);
 //    abc.push_back(7);
 //    abc.push_back(8);
 //    abc.push_back(9);
 
-    for(int i = 0; i < 5; i++){
-        abc.push_back(i);
-        std::cout << "Push : " << i << std::endl;
-    }
-    for(int i = 0; i < abc.size(); i++){
-        printf("%d:%d\n", i, abc.at(i));
-    }
+//    for(int i = 0; i < 5; i++){
+//        abc.push_back(i);
+//        std::cout << "Push : " << i << std::endl;
+//    }
+
     return 0;
     for(int i = 0; i < 5; i++){
         abc.push_back(i);
@@ -63,8 +78,11 @@ int main()
     std::cout << "My Allocator Time: ";
     std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
     return 0;
-    std::vector<int, MyAllocator<int>> cbd(1);
-    std::vector<IntVec, MyAllocator<IntVec>> vecints(TestSize);
+#endif
+    std::vector<IntVec, MyAllocator<IntVec>> vecints(1);
+    std::cout << sizeof(std::vector<Point2D, MyAllocator<Point2D>>) << std::endl;
+    return 0;
+
     for (int i = 0; i < TestSize; i++){
         vecints[i].resize(dis(gen));
     }
