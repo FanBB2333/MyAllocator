@@ -217,6 +217,7 @@ namespace MemMgr{
 
         }
 
+        // destroy an object
         template< class U >
         void destroy( U* p )
         {
@@ -253,7 +254,7 @@ namespace MemMgr{
     template<class T>
     uint32_t allocator_heap<T>::max_id = 0;
     template<class T>
-    uint64_t allocator_heap<T>::current_blocksize = 512; // Initial block size
+    uint64_t allocator_heap<T>::current_blocksize = 512; // Initial block size is 512 byte
 
 }
 
