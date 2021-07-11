@@ -36,7 +36,7 @@ namespace MemMgr{
         typedef size_t size_type;
         typedef ptrdiff_t difference_type;
 
-        static uint32_t max_id ;
+        static uint32_t max_id ;// Current max id
 
         typedef mem_ptr_list *block_ptr;
         allocator_list() = default; // default ctor
@@ -147,7 +147,7 @@ namespace MemMgr{
         typedef size_t size_type;
         typedef ptrdiff_t difference_type;
 
-        static uint32_t max_id ;
+        static uint32_t max_id ; // Current max id
         static uint64_t current_blocksize;
 
         typedef mem_ptr_heap *block_ptr;
