@@ -1,7 +1,4 @@
 # My Allocator
-**学号：**3190105838
-**姓名：**范钊瑀
-
 ## Test Case Design
 For the whole project, I designed two ways: using linked list and min-heap to store the available blocks(using heap in order to allocate different sizes of blocks in the sequence of size, so that we can assign blocks at a small size initially and expand the block size step by step).
 
