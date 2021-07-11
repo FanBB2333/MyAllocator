@@ -10,7 +10,7 @@
 namespace MemMgr{
     const uint32_t block_size = 4096;
     const uint32_t block_in_pool = 128;
-    const uint32_t expand_max = 65536;
+    const uint32_t expand_max = 65536; // max expand size for heap allocator
 
     class mem_ptr_list{
         // class of list pointer, points to specific address which means block
@@ -21,8 +21,8 @@ namespace MemMgr{
         mem_ptr_list(void* p, int i): pData(p), id(i){}
         ~mem_ptr_list()= default;
     };
-    static std::list<mem_ptr_list> valid_block;
-    static std::list<mem_ptr_list> all_block;
+    static std::list<mem_ptr_list> valid_block; // valid blocks to assign
+    static std::list<mem_ptr_list> all_block; // all the blocks
     // class of linked list allocator
     template <class T>
     class allocator_list{
@@ -64,7 +64,6 @@ namespace MemMgr{
                 std::cout << "NULLPTR----allocator_list::deallocate(pointer p, size_type n)  "<< std::endl;
 
             }
-//            std::cout << "allocator_list::deallocate(pointer p, size_type n)  " << n << std::endl;
         }
 
         T* allocate( std::size_t n, const void * hint = 0 )
@@ -89,16 +88,12 @@ namespace MemMgr{
         void destroy( U* p )
         {
             p->~U();
-//            std::cout << "allocator_list::destroy( U* p )  " << std::endl;
 
         }
         template< class U , class... Args >
         void construct( U* p, Args&&... args )
         {
             ::new((void *)p) U(std::forward<Args>(args)...);
-//            std::cout << "construct at:  " << static_cast<void*>(p) << std::endl;
-//            std::cout << "allocator_list::construct( U* p, Args&&... args )  " << std::endl;
-
         }
 
 
@@ -210,12 +205,12 @@ namespace MemMgr{
                 if(current_blocksize <= expand_max){
                     allocate_mem();
                     if(valid_block_heap.size() != 0){
-                        std::cout << n * sizeof(T) << " bytes needed, but the max block is "<<valid_block_heap.top().size<<std::endl;
+//                        std::cout << n * sizeof(T) << " bytes needed, but the max block is "<<valid_block_heap.top().size<<std::endl;
                     }
                 }
                 else{
-                    std::cout << "No more expansion, the max block size is " << expand_max << std::endl;
-                    std::cout << "Allocate from ::operator new!!" <<std::endl;
+//                    std::cout << "No more expansion, the max block size is " << expand_max << std::endl;
+//                    std::cout << "Allocate from ::operator new!!" <<std::endl;
                     return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
 
                 }
@@ -248,9 +243,6 @@ namespace MemMgr{
 
 
     private:
-//        static std::priority_queue<mem_ptr_heap> valid_block_heap;
-//        static std::map<void*, uint64_t> all_block_heap; // To store whether the memory is assigned by pool or operator new for further delete
-
         void* allocate_mem(size_t n = current_blocksize * block_in_pool)
         {
             void* _new_mem = static_cast<void*>(::operator new(n));
@@ -263,7 +255,7 @@ namespace MemMgr{
                 // note that we need to divide the memory block into smaller pieces.
                 cyc = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(cyc) + current_blocksize);
             }
-            std::cout << "Block size expand from " << current_blocksize/2 << " to " << current_blocksize  << std::endl;
+//            std::cout << "Block size expand from " << current_blocksize/2 << " to " << current_blocksize  << std::endl;
             current_blocksize *= 2; // expand block size
             return nullptr;
 
