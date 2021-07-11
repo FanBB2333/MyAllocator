@@ -151,11 +151,10 @@ namespace MemMgr{
         static uint64_t current_blocksize;
 
         typedef mem_ptr_heap *block_ptr;
-        allocator_heap()
-        {}// default ctor
+        allocator_heap() = default;// default ctor
         allocator_heap(const allocator_heap& t)
         {} // copy ctor
-        ~allocator_heap() {} // dtor
+        ~allocator_heap() = default;// dtor
 
         pointer address(reference _Val) const {
             return &_Val;
@@ -168,7 +167,7 @@ namespace MemMgr{
             if (p != nullptr) {
                 void* t = reinterpret_cast<void*>(p);
                 if(all_block_heap.count(t) == 1){
-                    // If the memory is allocated by pool
+                    // If the memory is allocated by pool, no need to release it and add it to valid ones
                     valid_block_heap.template emplace(p, max_id++, all_block_heap[t]);
                 }
                 else{
@@ -179,16 +178,16 @@ namespace MemMgr{
             }
             else{
                 std::cout << "NULLPTR----allocator_heap::deallocate(pointer p, size_type n)  "<< std::endl;
-
             }
         }
 
-
         T* allocate( std::size_t n, const void * hint = 0 )
         {
+            // If the blocks are not enough, just allocate more blocks
             if(valid_block_heap.size() <= 1){
                 allocate_mem();
             }
+            // Expand the block size until the
             while ( n * sizeof(T) > valid_block_heap.top().size){
                 if(current_blocksize <= expand_max){
                     allocate_mem();
@@ -204,6 +203,7 @@ namespace MemMgr{
                 }
 
             }
+            // If there is no avail block for needed size
             if(n * sizeof(T) > valid_block_heap.top().size){
 //                std::cout << "Allocate from ::operator new!!" <<std::endl;
                 return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
