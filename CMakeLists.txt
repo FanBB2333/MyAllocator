@@ -4,4 +4,4 @@ project(MyAllocator)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(MyAllocator
-        SampleTest.cpp src/AlloMemPool.cpp src/AlloMemPool.h)
+        MyTest.cpp src/AlloMemPool.cpp src/AlloMemPool.h)
