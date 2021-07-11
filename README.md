@@ -10,7 +10,7 @@ For the whole project, I designed two ways: using linked list and min-heap to st
 
 It is clear that both of my allocators can pass the original test case.
 
-![image-20210711095048843](.\pic\image-20210711095048843.png)
+![image-20210711095048843](./pic/image-20210711095048843.png)
 
 
 
@@ -94,7 +94,7 @@ For heap allocator, we use a priority queue to maintain the valid blocks and the
 
 
 Sample test output:
-![image-20210711112838554](.\pic\image-20210711112838554.png)
+![image-20210711112838554](./pic/image-20210711112838554.png)
 
 ### Frequently allocate memories test
 This testcase tests the performance of the allocator when blocks of memory need to frequently allocated and deleted. We create a lot of new vectors and store then in a vector containing vectors. 
@@ -134,11 +134,11 @@ if(correct){
 
 During test, some test code are added to allocator to monitor the left available blocks(We have 128 blocks initially):
 
-![image-20210711090448411](.\pic\image-20210711090448411.png)
+![image-20210711090448411](./pic/image-20210711090448411.png)
 
 **Test Result:(Both of Linked list allocator and Heap allocator can pass the test)**
 
-![image-20210711090741393](.\pic\image-20210711090741393.png)
+![image-20210711090741393](./pic/image-20210711090741393.png)
 
 ### Allocate Large Memories Test
 Because that our memory has a maximum block of 4k bytes, then we need to test to allocate larger memory.
@@ -172,7 +172,7 @@ Note that I added some code to test the allocated memory module so that you may 
 
 For Linked List Allocator, if the needed block is larger than 4k, it will allocates memory from system.
 
-![image-20210711123104321](.\pic\image-20210711123104321.png)
+![image-20210711123104321](./pic/image-20210711123104321.png)
 
 #### Heap allocator
 
@@ -182,7 +182,7 @@ In case 3, the block size expand but not reach maximum, then it get allocated.
 
 In case 4, it reaches the maximum block size and system will allocate memory for it through `::operator new`
 
-![image-20210711123310334](.\pic\image-20210711123310334.png)
+![image-20210711123310334](./pic/image-20210711123310334.png)
 
 
 
