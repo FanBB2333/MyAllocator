@@ -11,7 +11,9 @@ namespace MemMgr{
     const uint32_t block_size = 4096;
     const uint32_t block_in_pool = 128;
     const uint32_t expand_max = 65536;
+
     class mem_ptr_list{
+        // class of list pointer, points to specific address which means block
     public:
         void* pData = nullptr;
         size_t id;
@@ -21,7 +23,7 @@ namespace MemMgr{
     };
     static std::list<mem_ptr_list> valid_block;
     static std::list<mem_ptr_list> all_block;
-
+    // class of linked list allocator
     template <class T>
     class allocator_list{
     public:
@@ -35,7 +37,6 @@ namespace MemMgr{
         typedef ptrdiff_t difference_type;
 
         static uint32_t max_id ;
-
 
         typedef mem_ptr_list *block_ptr;
         allocator_list(): free_block(0), total_block(0)
@@ -58,12 +59,6 @@ namespace MemMgr{
             // Find the block with the specific id and push back to free_list
             if (p != nullptr) {
                 valid_block.template emplace_back(p, max_id++);
-
-//                for(auto &iter : all_block){
-//                    if(iter.pData == reinterpret_cast<void*>(p)){
-//                        valid_block.template emplace_back(p, iter.id);
-//                    }
-//                }
             }
             else{
                 std::cout << "NULLPTR----allocator_list::deallocate(pointer p, size_type n)  "<< std::endl;
@@ -71,16 +66,11 @@ namespace MemMgr{
             }
 //            std::cout << "allocator_list::deallocate(pointer p, size_type n)  " << n << std::endl;
         }
-//        void deallocate( T* p, std::size_t n );
-//        T* allocate( std::size_t n, const void * hint = 0);
 
         T* allocate( std::size_t n, const void * hint = 0 )
         {
-//            T* _ret = static_cast<T*>(::operator new(n * sizeof(T)));
-//            return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
-
             if(n * sizeof(T) > block_size){
-                std::cout << "Allocate from ::operator new!!" <<std::endl;
+//                std::cout << "Allocate from ::operator new!!" <<std::endl;
                 return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
             }
             if(valid_block.empty()){
@@ -90,7 +80,7 @@ namespace MemMgr{
             // Assign a block of memory from the memory pool
             mem_ptr_list out = valid_block.front();
             valid_block.pop_front();
-            std::cout << valid_block.size() << " block left!" <<std::endl;
+//            std::cout << valid_block.size() << " block left!" <<std::endl;
             return reinterpret_cast<T*>(out.pData);
 
         }
@@ -119,8 +109,6 @@ namespace MemMgr{
             mem_block* next = nullptr;
         };
 
-//        std::list<mem_ptr_list> valid_block;
-//        std::list<mem_ptr_list> all_block;
 
         mem_block* total_head;
         mem_block* free_head;
@@ -137,7 +125,6 @@ namespace MemMgr{
                 valid_block.template emplace_back(cyc, max_id);
                 all_block.template emplace_back(cyc, max_id);
                 max_id++;
-//                std::cout << max_id << " : " << cyc << std::endl;
                 // note that we need to divide the memory block into smaller pieces.
                 cyc = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(cyc) + block_size);
             }
