@@ -119,7 +119,7 @@ namespace MemMgr{
     };
     template<class T>
     uint32_t allocator_list<T>::max_id = 0;
-
+    // The pointer class which stores the destination address of the block
     class mem_ptr_heap{
     public:
         void* pData = nullptr;
