@@ -32,7 +32,6 @@ int main()
     // vector creation
     clock_t start;
 
-
 #ifdef original_test
     std::cout << "------------Start of original Testcase!------------" << std::endl;
     std::cout << "Linked list allocator" << std::endl;

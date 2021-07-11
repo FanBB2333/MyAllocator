@@ -39,11 +39,10 @@ namespace MemMgr{
         static uint32_t max_id ;
 
         typedef mem_ptr_list *block_ptr;
-        allocator_list(): free_block(0), total_block(0)
-        {}// default ctor
+        allocator_list() = default; // default ctor
         allocator_list(const allocator_list& t)
         {} // copy ctor
-        ~allocator_list() {} // dtor
+        ~allocator_list() = default;// dtor
 
         pointer address(reference _Val) const {
             return &_Val;
@@ -58,7 +57,7 @@ namespace MemMgr{
             }
             // Find the block with the specific id and push back to free_list
             if (p != nullptr) {
-                valid_block.template emplace_back(p, max_id++);
+                valid_block.template emplace_back(p, max_id++); // Add back to valid ones
             }
             else{
                 std::cout << "NULLPTR----allocator_list::deallocate(pointer p, size_type n)  "<< std::endl;
@@ -69,6 +68,7 @@ namespace MemMgr{
         T* allocate( std::size_t n, const void * hint = 0 )
         {
             if(n * sizeof(T) > block_size){
+                // If larger, just allocate from new
 //                std::cout << "Allocate from ::operator new!!" <<std::endl;
                 return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
             }
@@ -93,23 +93,11 @@ namespace MemMgr{
         template< class U , class... Args >
         void construct( U* p, Args&&... args )
         {
+            // Construct elements
             ::new((void *)p) U(std::forward<Args>(args)...);
         }
 
-
-
     private:
-        struct mem_block{
-            value_type pData;
-            mem_block* next = nullptr;
-        };
-
-
-        mem_block* total_head;
-        mem_block* free_head;
-        mem_block* free_tail;
-        uint32_t free_block{};
-        uint32_t total_block{};
 
         void* allocate_mem(size_t n = block_size * block_in_pool)
         {
