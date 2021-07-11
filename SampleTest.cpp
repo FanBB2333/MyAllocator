@@ -5,9 +5,9 @@
 #include <cassert>
 #include "./src/AlloMemPool.h"
 
-//#define original_test
-//#define timecost_test
-//#define frequent_allo_test
+#define original_test
+#define timecost_test
+#define frequent_allo_test
 #define largemem_test
 
 // include header of your allocator_list here
@@ -125,7 +125,6 @@ int main()
             std::cout << "incorrect assignment in vecpts: " << idx1 << std::endl;
     }
     std::cout << "------------End of original Testcase!------------\n\n" << std::endl;
-    return 0;
 #endif
 #ifdef timecost_test
     std::cout << "------------Start of time Test!------------" << std::endl;
