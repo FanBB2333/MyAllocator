@@ -4,8 +4,12 @@
 #include <ctime>
 #include <cassert>
 #include "./src/AlloMemPool.h"
-#define timecost_test
+
 //#define original_test
+//#define timecost_test
+//#define frequent_allo_test
+#define largemem_test
+
 // include header of your allocator_list here
 //using MyAllocator = std::allocator_list<T>; // replace the std::allocator_list with your allocator_list
 template<class T>
@@ -20,7 +24,7 @@ using Point2D = std::pair<int, int>;
 
 const int TestSize = 10000;
 const int PickSize = 1000;
-const int cycle = 100000;
+const int cycle = 10000;
 int main()
 {
     std::random_device rd;
@@ -126,7 +130,7 @@ int main()
 #ifdef timecost_test
     std::cout << "------------Start of time Test!------------" << std::endl;
     std::cout << "Because that a vector is expanded twice large when it is almost full, then we test with different size of push elements" << std::endl;
-    std::cout << "------------Using Default Allocator!------------" << std::endl;
+    std::cout << "------------Using STL Allocator!------------" << std::endl;
     int push_size = 10;
     start = clock();
     for(auto i = 0; i < cycle; i++){
@@ -136,7 +140,7 @@ int main()
             tmp.push_back(j);
         }
     }
-    std::cout << "Default Allocator Time: ";
+    std::cout << "STL Allocator Time: ";
     std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n";
 
     std::cout << "------------Using Linked List Allocator!------------" << std::endl;
@@ -160,7 +164,8 @@ int main()
         }
     }
     std::cout << "Heap Allocator Time: ";
-    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n\n";
+    std::cout << (((double)clock() - start) / CLOCKS_PER_SEC) << "\n";
+    std::cout << "------------End of time Test!------------" << std::endl;
 #endif
 
 #ifdef frequent_allo_test
@@ -196,12 +201,21 @@ int main()
 
 #ifdef largemem_test
     std::cout << "------------Allocate Extreme Large Memories Test!------------" << std::endl;
+    std::cout << "Linked list allocator:" << std::endl;
     std::cout << "uint64_t type costs 8 byte, our block has 4k byte, then test with at least 512 elements.\n" << std::endl;
-    std::cout << "To construct an element larger than a block : 513 uint64_t elements" << std::endl;
+    std::cout << "Case 1 :To construct an element larger than a block : 513 uint64_t elements" << std::endl;
     std::vector<uint64_t, ListAllocator<uint64_t> > large_test1(513);
-    std::cout << std::endl;
-    std::cout << "To construct an element smaller than a block : 511 uint64_t elements" << std::endl;
+    std::cout << "Case 2 :To construct an element smaller than a block : 511 uint64_t elements" << std::endl;
     std::vector<uint64_t, ListAllocator<uint64_t> > large_test2(511);
+    std::cout << std::endl << std::endl;
+
+    std::cout << "Heap allocator:" << std::endl;
+    std::cout << "Case 3 :Block will expand but not reach max size:" << std::endl;
+    std::vector<uint64_t, HeapAllocator<uint64_t> > large_test3(257); // Try to assign large piece of memory
+    std::cout << std::endl << std::endl;
+
+    std::cout << "Case 4 :Block will expand and will reach max size:" << std::endl;
+    std::vector<uint64_t, HeapAllocator<uint64_t> > large_test4(8193); // Try to assign largest piece of memory
     std::cout << "------------End of Allocate Extreme Large Memories Test!------------" << std::endl;
 #endif
     return 0;

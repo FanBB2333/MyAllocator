@@ -10,6 +10,7 @@
 namespace MemMgr{
     const uint32_t block_size = 4096;
     const uint32_t block_in_pool = 128;
+    const uint32_t expand_max = 65536;
     class mem_ptr_list{
     public:
         void* pData = nullptr;
@@ -89,7 +90,7 @@ namespace MemMgr{
             // Assign a block of memory from the memory pool
             mem_ptr_list out = valid_block.front();
             valid_block.pop_front();
-//            std::cout << valid_block.size() << " block left!" <<std::endl;
+            std::cout << valid_block.size() << " block left!" <<std::endl;
             return reinterpret_cast<T*>(out.pData);
 
         }
@@ -218,7 +219,21 @@ namespace MemMgr{
             if(valid_block_heap.size() <= 1){
                 allocate_mem();
             }
+            while ( n * sizeof(T) > valid_block_heap.top().size){
+                if(current_blocksize <= expand_max){
+                    allocate_mem();
+                    if(valid_block_heap.size() != 0){
+                        std::cout << n * sizeof(T) << " bytes needed, but the max block is "<<valid_block_heap.top().size<<std::endl;
+                    }
+                }
+                else{
+                    std::cout << "No more expansion, the max block size is " << expand_max << std::endl;
+                    std::cout << "Allocate from ::operator new!!" <<std::endl;
+                    return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
 
+                }
+
+            }
             if(n * sizeof(T) > valid_block_heap.top().size){
 //                std::cout << "Allocate from ::operator new!!" <<std::endl;
                 return reinterpret_cast<T*>(::operator new(n * sizeof(T)) );
@@ -261,6 +276,7 @@ namespace MemMgr{
                 // note that we need to divide the memory block into smaller pieces.
                 cyc = reinterpret_cast<void *>(reinterpret_cast<uint64_t>(cyc) + current_blocksize);
             }
+            std::cout << "Block size expand from " << current_blocksize/2 << " to " << current_blocksize  << std::endl;
             current_blocksize *= 2; // expand block size
             return nullptr;
 
